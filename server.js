@@ -101,14 +101,78 @@ app.post("/api/cv", (req, res) => {
     });
 });
 
+
 // update cv
 app.put("/api/cv/:id", (req, res) => {
-    res.json({message: "cv updated " + req.params.id});
+    let id = req.params.id;
+    let companyname = req.body.companyname;
+    let jobtitle = req.body.jobtitle;
+    let location = req.body.location;
+
+    // error handling
+
+    let errors = {
+        message: "",
+        detail: "", 
+        https_response: {
+
+        }
+    };
+
+    if(!companyname || !jobtitle || !location) {
+       // error message
+       errors.message = "companyname, jobtitle or location not included";
+       errors.detail = "You must include companyname, jobtitle and location in json";
+
+       // response code
+       errors.https_response.message = "Bad request";
+       errors.https_response.code = 400;
+
+       res.status(400).json(errors);
+
+        return;
+    }
+
+    // update cv in database
+
+    connection.query(
+        `UPDATE cv SET companyname=?, jobtitle=?, location=? WHERE id=?`,
+        [companyname, jobtitle, location, id],
+        (err, results) => {
+            if (err) {
+                res.status(500).json({ error: "Something went wrong: " + err });
+                return;
+            }
+
+            if (results.affectedRows === 0) {
+                res.status(404).json({ message: "cv not found" });
+                return;
+            }
+
+            res.json({ message: "cv updated", cv: { id, companyname, jobtitle, location } });
+        }
+    );
 });
+
 
 // delete cv
 app.delete("/api/cv/:id", (req, res) => {
-    res.json({message: "cv deleted " + req.params.id});
+    let id = req.params.id;
+
+    // delete cv from database
+    connection.query(`DELETE FROM cv WHERE id=?`, [id], (err, results) => {
+        if(err) {
+            res.status(500).json({error: "Something went wrong: " + err});
+            return;
+        }
+
+        if(results.affectedRows === 0) {
+            res.status(404).json({message: "no cv found"});
+            return;
+        }
+
+        res.json({ message: "cv deleted with id: ", id });
+    });
 });
 
 
