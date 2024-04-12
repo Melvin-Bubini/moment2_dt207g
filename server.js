@@ -5,7 +5,6 @@ require('dotenv').config();
 
 const app = express();
 const port = process.env.PORT || 3000;
-app.use(express.static("public"));
 
 // anslutning till databas
 
@@ -102,10 +101,12 @@ app.post("/api/cv", (req, res) => {
     });
 });
 
+// update cv
 app.put("/api/cv/:id", (req, res) => {
     res.json({message: "cv updated " + req.params.id});
 });
 
+// delete cv
 app.delete("/api/cv/:id", (req, res) => {
     res.json({message: "cv deleted " + req.params.id});
 });
