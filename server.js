@@ -102,6 +102,27 @@ app.post("/api/cv", (req, res) => {
 });
 
 
+// delete cv
+app.delete("/api/cv/:id", (req, res) => {
+    let id = req.params.id;
+
+    // delete cv from database
+    connection.query(`DELETE FROM cv WHERE id=?`, [id], (err, results) => {
+        if(err) {
+            res.status(500).json({error: "Something went wrong: " + err});
+            return;
+        }
+
+        if(results.affectedRows === 0) {
+            res.status(404).json({message: "no cv found"});
+            return;
+        }
+
+        res.json({ message: "cv deleted with id: ", id });
+    });
+});
+
+
 // update cv
 app.put("/api/cv/:id", (req, res) => {
     let id = req.params.id;
@@ -152,27 +173,6 @@ app.put("/api/cv/:id", (req, res) => {
             res.json({ message: "cv updated", cv: { id, companyname, jobtitle, location } });
         }
     );
-});
-
-
-// delete cv
-app.delete("/api/cv/:id", (req, res) => {
-    let id = req.params.id;
-
-    // delete cv from database
-    connection.query(`DELETE FROM cv WHERE id=?`, [id], (err, results) => {
-        if(err) {
-            res.status(500).json({error: "Something went wrong: " + err});
-            return;
-        }
-
-        if(results.affectedRows === 0) {
-            res.status(404).json({message: "no cv found"});
-            return;
-        }
-
-        res.json({ message: "cv deleted with id: ", id });
-    });
 });
 
 
